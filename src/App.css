@@ -1,31 +1,22 @@
 .page-shell {
   width: min(1200px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 1.25rem 0 3rem;
+  padding: 0.5rem 0 3rem;
 }
 
 .hero {
   position: relative;
-  padding: 2rem 2rem 2.5rem;
-  border: 1px solid rgba(192, 132, 252, 0.24);
-  border-radius: 2rem;
-  background:
-    radial-gradient(circle at top left, rgba(169, 85, 255, 0.28), transparent 30%),
-    linear-gradient(135deg, rgba(8, 5, 15, 0.98), rgba(18, 12, 31, 0.96));
+  padding: 2rem 0 2.5rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   overflow: hidden;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
   min-height: 760px;
 }
 
 .hero::before {
-  content: '';
-  position: absolute;
-  inset: 8% 0 auto auto;
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.16), transparent 68%);
-  filter: blur(18px);
-  pointer-events: none;
+  display: none;
 }
 
 .hero::after {
@@ -46,8 +37,8 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 0.85rem 1.05rem;
+  margin-bottom: 1rem;
+  padding: 0.55rem 1.05rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: rgba(8, 5, 15, 0.18);
@@ -114,21 +105,25 @@
 
 .hero__content {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(420px, 0.95fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.85fr);
   gap: 2rem;
   align-items: center;
   min-height: 620px;
 }
 
+.hero__visual {
+  order: -1;
+}
+
 .hero__copy {
   position: relative;
-  padding: 2rem 2.2rem;
-  border-radius: 1.6rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 24px 55px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  padding: 2rem 1rem;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   animation: pageFadeUp 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -1400,4 +1395,190 @@
   .btn {
     width: 100%;
   }
+}
+
+/* Calculateur de tarif Flavio Taxi Moto */
+
+.tarif-calculateur {
+  max-width: 650px;
+  margin: 40px auto 0;
+  padding: 35px;
+  background: #F5F1FA;
+  border: 1px solid rgba(165, 100, 255, 0.35);
+  border-radius: 24px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+}
+
+.tarif-calculateur {
+  color: #241A35;
+}
+
+.tarif-calculateur label {
+  color: #241A35;
+  font-weight: 600;
+}
+
+.tarif-champ {
+  margin-bottom: 22px;
+}
+
+.tarif-champ label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.tarif-champ input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 1px solid rgba(165, 100, 255, 0.4);
+  border-radius: 12px;
+  background: #171326;
+  color: white;
+  font-size: 16px;
+}
+
+.tarif-champ input:focus {
+  outline: none;
+  border-color: #a56aff;
+}
+
+.tarif-bouton {
+  width: 100%;
+  padding: 17px;
+  background: linear-gradient(135deg, #482066, #713A94);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tarif-bouton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.tarif-resultat {
+  margin-top: 25px;
+  padding: 25px;
+  text-align: center;
+  background: rgba(139, 66, 232, 0.12);
+  border-radius: 16px;
+}
+
+.tarif-resultat h3 {
+  margin: 15px 0;
+  font-size: 42px;
+  color: #bb86ff;
+}
+
+.tarif-resultat small {
+  color: #aaa;
+}
+
+.tarif-erreur {
+  margin-top: 15px;
+  color: #ff8585;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .tarif-calculateur {
+    padding: 22px;
+    margin-top: 25px;
+  }
+}
+.tarif-calculateur label {
+  color: #241832;
+  font-weight: 600;
+}
+.tarif-button {
+  background: linear-gradient(135deg, #210E32, #45205F) !important;
+  background-image: linear-gradient(135deg, #210E32, #45205F) !important;
+  color: white !important;
+}
+
+.tarif-button:hover {
+  background: linear-gradient(135deg, #321448, #5A2878) !important;
+  background-image: linear-gradient(135deg, #321448, #5A2878) !important;
+}
+.tarif-calculateur .tarif-suggestions button {
+  color: #241832 !important;
+}
+/* Section réservation en 4 étapes */
+#workflow {
+  background: linear-gradient(135deg, #faf7ff 0%, #f0e9fa 100%);
+  border-radius: 24px;
+}
+/* Textes de la section des 4 étapes */
+#workflow h2,
+#workflow h3 {
+  color: #241832 !important;
+}
+
+#workflow p {
+  color: #625575 !important;
+}
+
+#workflow .timeline__card {
+  background: #ffffff !important;
+  border: 1px solid #e6d9f3 !important;
+}
+#workflow {
+  margin-top: 35px;
+  padding: 60px 35px 50px;
+}
+
+#workflow .timeline {
+  margin-top: 35px;
+}
+/* FAQ : cartes violettes élégantes */
+#faq .faq-item {
+  background: linear-gradient(135deg, #1c1428 0%, #291b3a 100%);
+  border: 1px solid #49315f;
+  border-radius: 16px;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+#faq .faq-item:hover {
+  background: linear-gradient(135deg, #281b3a 0%, #38234f 100%);
+  border-color: #8054a8;
+}
+
+#faq .faq-item[open] {
+  border-color: #9565c0;
+}
+/* Coordonnées sous le formulaire */
+.booking-card__contact-info {
+  margin-top: 25px;
+}
+
+.booking-card__contact-info p {
+  font-size: 19px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.booking-card__contact-info a {
+  color: #e5d0ff;
+  text-decoration: none;
+}
+
+.booking-card__contact-info a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+/* Corriger l'affichage du champ Heure */
+.field--floating:has(input[name="time"]) span {
+  display: none;
+}
+
+.field--floating input[name="time"] {
+  padding: 12px 18px;
+  font-size: 16px;
+  color: #ffffff;
 }

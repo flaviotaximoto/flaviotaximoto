@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 
 import heroPremium from './assets/hero-premium.png'
-import galleryFrontView from './assets/gallery/IMG_3061.jpg'
+import galleryFrontView from './assets/gallery/taxi-moto-paris-yvelines-by-flavio-taxi-moto.png'
 import gallerySideView from './assets/gallery/IMG_0045.jpg'
 import galleryDetailOne from './assets/gallery/IMG_0058.jpg'
 import galleryDetailTwo from './assets/gallery/IMG_2105.jpg'
@@ -10,73 +10,53 @@ import galleryDetailThree from './assets/gallery/IMG_3643.jpg'
 import galleryDetailFour from './assets/gallery/IMG_4236.jpg'
 import galleryDetailFive from './assets/gallery/IMG_4238.jpg'
 import galleryDetailSix from './assets/gallery/IMG_4702.jpg'
+import photoParis from './assets/gallery/taxi-moto-paris-yvelines-by-flavio-taxi-moto.png'
+import photoOrly from './assets/gallery/taxi-moto-plaisir-orly-cdg-transfert-aeroport-flavio.png'
+import photoCockpit from './assets/gallery/taxi-moto-plaisir-paris-trajet-rapide-yvelines-flavio.png'
+import photoVersailles from './assets/gallery/taxi-moto-versailles-paris-service-premium-flavio.png'
+import photoConfort from './assets/gallery/taxi-moto-yvelines-confort-passager-flavio.jpg'
 
 const galleryImages = [
-  {
-    src: galleryFrontView,
-    alt: 'Vue avant premium de la moto Flavio Taxi Moto',
+  
+    {
+    src: photoParis,
+    alt: 'Taxi moto premium au départ des Yvelines vers Paris',
   },
   {
-    src: gallerySideView,
-    alt: 'Présentation latérale du taxi moto premium',
+    src: photoOrly,
+    alt: 'Transfert taxi moto depuis Plaisir vers Orly et CDG',
   },
   {
-    src: galleryDetailOne,
-    alt: 'Détail du véhicule avec l’équipement premium',
+    src: photoCockpit,
+    alt: 'Trajet rapide en taxi moto entre les Yvelines et Paris',
   },
   {
-    src: galleryDetailTwo,
-    alt: 'Moto en mouvement sur un trajet premium',
+    src: photoVersailles,
+    alt: 'Service taxi moto à Versailles et dans les Yvelines',
   },
   {
-    src: galleryDetailThree,
-    alt: 'Vue rapprochée du taxi moto en environnement urbain',
-  },
-  {
-    src: galleryDetailFour,
-    alt: 'Service Flavio Taxi Moto dans un cadre premium',
-  },
-  {
-    src: galleryDetailFive,
-    alt: 'Expérience premium à bord du taxi moto',
-  },
-  {
-    src: galleryDetailSix,
-    alt: 'Mise en scène élégante du service moto premium',
+    src: photoConfort,
+    alt: 'Confort du passager à bord de la Honda Goldwing',
   },
 ]
 
 const features = [
   {
     icon: '⛵',
-    title: 'Honda Goldwing',
-    description: 'Voyagez à bord d’une Honda Goldwing, reconnue pour son confort exceptionnel.',
+    title: 'Confort haut de gamme',
+    description: "Profitez d'un siège passager chauffant et d'un confort digne d'une voiture.",
   },
   {
     icon: '⏱',
     title: 'Ponctualité',
-    description: 'Optimisez vos déplacements et évitez les embouteillages.',
+    description: "Évitez les embouteillages et arrivez à l'heure, même aux heures de pointe.",
   },
   {
     icon: '🛡',
     title: 'Sécurité',
-    description: 'Pilote expérimenté, conduite souple et équipement homologué.',
+    description: "Un chauffeur expérimenté, une conduite souple et des équipements de sécurité homologués.",
   },
-  {
-    icon: '◈',
-    title: 'Paiements simplifiés',
-    description: 'CB, espèces, Apple Pay, Google Pay, virement/Wero.',
-  },
-  {
-    icon: '✦',
-    title: 'Disponible 7j/7',
-    description: 'Réservation à l’avance ou selon disponibilité.',
-  },
-  {
-    icon: '✧',
-    title: 'Service Premium',
-    description: 'Une expérience haut de gamme avec un accueil professionnel et personnalisé.',
-  },
+  
 ]
 
 const services = [
@@ -161,6 +141,88 @@ function SectionHeading({
 }
 
 export default function App() {
+
+  const [tarifDepart, setTarifDepart] = useState('')
+  const [tarifDestination, setTarifDestination] = useState('')
+  const [coordonneesDepart, setCoordonneesDepart] = useState<number[] | null>(null)
+const [coordonneesDestination, setCoordonneesDestination] = useState<number[] | null>(null)
+  
+const [suggestionsDepart, setSuggestionsDepart] = useState<{ adresse: string; coordonnees: number[] }[]>([])
+const [suggestionsDestination, setSuggestionsDestination] = useState<{ adresse: string; coordonnees: number[] }[]>([])
+
+const rechercherSuggestions = async (
+  texte: string,
+  type: 'depart' | 'destination'
+) => {
+  if (texte.trim().length < 3) {
+    if (type === 'depart') setSuggestionsDepart([])
+    else setSuggestionsDestination([])
+    return
+  }
+
+  try {
+    const reponse = await fetch(
+      `/.netlify/functions/recherche-adresses?q=${encodeURIComponent(texte)}`
+    )
+
+    if (!reponse.ok) return
+
+    const donnees = await reponse.json()
+    const suggestions = donnees.suggestions ?? []
+
+    if (type === 'depart') setSuggestionsDepart(suggestions)
+    else setSuggestionsDestination(suggestions)
+  } catch (erreur) {
+    console.error('Erreur recherche adresses :', erreur)
+  }
+}
+  const [tarifResultat, setTarifResultat] = useState<{
+    depart: string
+    destination: string
+    kilometres: number
+    tarif: number
+  } | null>(null)
+  const [tarifChargement, setTarifChargement] = useState(false)
+  const [tarifErreur, setTarifErreur] = useState('')
+
+  const calculerTarif = async () => {
+    if (!tarifDepart.trim() || !tarifDestination.trim()) {
+      setTarifErreur('Indiquez une adresse de départ et une destination.')
+      return
+    }
+
+    setTarifChargement(true)
+    setTarifErreur('')
+    setTarifResultat(null)
+
+    try {
+      const reponse = await fetch('/.netlify/functions/calcul-tarif', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+  depart: tarifDepart,
+  destination: tarifDestination,
+  coordonneesDepart: coordonneesDepart,
+  coordonneesDestination: coordonneesDestination,
+}),
+      })
+
+      const donnees = await reponse.json()
+
+      if (!reponse.ok) {
+        throw new Error(donnees.error || 'Impossible de calculer le tarif.')
+      }
+
+      setTarifResultat(donnees)
+    } catch (erreur) {
+      setTarifErreur(
+        erreur instanceof Error ? erreur.message : 'Une erreur est survenue.'
+      )
+    } finally {
+      setTarifChargement(false)
+    }
+  }
+
   const [scrolled, setScrolled] = useState(false)
   const [activeImage, setActiveImage] = useState<number | null>(null)
   const [activeReview, setActiveReview] = useState(0)
@@ -230,7 +292,7 @@ export default function App() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const { name, phone, email, departure, destination, date, time } = formData
 
     if (!name.trim() || !phone.trim() || !email.trim() || !departure.trim() || !destination.trim() || !date || !time) {
@@ -238,23 +300,31 @@ export default function App() {
       return
     }
 
-    const message = `Bonjour Flavio,\n\nJe souhaite obtenir un devis pour un trajet.\n\n👤 Nom :\n${name.trim()}\n\n📞 Téléphone :\n${phone.trim()}\n\n✉️ Email :\n${email.trim()}\n\n📍 Départ :\n${departure.trim()}\n\n📍 Arrivée :\n${destination.trim()}\n\n📅 Date :\n${date}\n\n🕒 Heure :\n${time}\n\n👤 Passagers :\n${formData.passengers || '1'}\n\n📝 Message :\n${formData.message.trim() || 'Aucune'}\n\nMerci.`
+  
 
-    const encodedMessage = encodeURIComponent(message)
-    const number = '33629495850'
-    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(window.navigator.userAgent)
-    const waUrl = isMobile
-      ? `https://wa.me/${number}?text=${encodedMessage}`
-      : `https://web.whatsapp.com/send?phone=${number}&text=${encodedMessage}`
+  setIsSubmitting(true)
+setFeedback('')
 
-    setIsSubmitting(true)
-    setFeedback('')
+try {
+  const response = await fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      'form-name': 'reservation-taxi-moto',
+      ...Object.fromEntries(
+        Object.entries(formData).map(([key, value]) => [key, String(value)])
+      ),
+    }).toString(),
+  })
 
-    window.setTimeout(() => {
-      window.open(waUrl, '_blank', 'noopener,noreferrer')
-      setIsSubmitting(false)
-      setFeedback('Demande de devis envoyée avec succès.')
-    }, 700)
+  if (!response.ok) throw new Error('Envoi impossible')
+
+  setFeedback('Votre demande a bien été envoyée !')
+} catch {
+  setFeedback("Une erreur est survenue. Réessayez ou contactez-nous par WhatsApp.")
+} finally {
+  setIsSubmitting(false)
+}
   }
 
   return (
@@ -268,9 +338,14 @@ export default function App() {
             <a href="#accueil" className="nav-link">
               Accueil
             </a>
-            <a href="#services" className="nav-link">
-              Services
-            </a>
+            
+<a href="#tarifs" className="nav-link">
+  Tarifs
+</a>
+<a href="#services" className="nav-link">
+  Services
+</a>
+
             <a href="#why-us" className="nav-link">
               Pourquoi nous choisir
             </a>
@@ -289,10 +364,10 @@ export default function App() {
         <div className="hero__content">
           <div className="hero__copy">
             <p className="eyebrow">Taxi Moto Premium</p>
-            <h1 id="hero-title">Taxi Moto Premium</h1>
+            <h1 id="hero-title">Voyagez autrement.</h1>
             <p className="hero__subtitle">Yvelines • Paris • Versailles • Orly • CDG</p>
             <div className="hero__badges" aria-label="Prestige du service">
-              <span className="hero__badge">🏍️ Honda Goldwing 2022</span>
+              <span className="hero__badge">Confort haut de gamme</span>
               <span className="hero__badge hero__badge--active">🟢 Disponible 7j/7</span>
             </div>
             <div className="hero__rating" aria-label="Note du service premium">
@@ -300,7 +375,7 @@ export default function App() {
               <span className="hero__rating-label">Service Premium</span>
             </div>
             <p className="hero__description">
-              Service de taxi moto premium disponible 7j/7. Déplacements rapides, confortables et ponctuels vers les aéroports, les gares, les rendez-vous professionnels et toutes distances à bord d'une Honda Goldwing.
+              Profitez d'un service de taxi moto haut de gamme pour vos déplacements professionnels et personnels. Transferts vers Orly, Roissy-CDG, les gares et Paris, au départ des Yvelines et de toute l'Île-de-France. Voyagez rapidement et sereinement à bord d'une moto offrant un confort digne d'une voiture, avec en prime un siège passager chauffant. Et même en cas de mauvais temps, voyagez l’esprit tranquille : nos équipements vous permettent de rester au sec, même sous la pluie.
             </p>
 
             <div className="hero__actions">
@@ -332,25 +407,8 @@ export default function App() {
       </header>
 
       <main>
-        <section id="why-us" className="section reveal-on-scroll">
-          <SectionHeading
-            eyebrow="Pourquoi nous choisir"
-            title="Une expérience premium à la hauteur de vos exigences"
-            description="Précision, confort et élégance pour chaque déplacement, à toute heure."
-          />
-
-          <div className="card-grid card-grid--features">
-            {features.map((feature, index) => (
-              <article key={feature.title} className="info-card info-card--feature reveal-card" style={{ transitionDelay: `${index * 100}ms` }}>
-                <div className="info-card__icon" aria-hidden="true">
-                  {feature.icon}
-                </div>
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+        
+        
 
         <section id="services" className="section section--alt reveal-on-scroll">
           <SectionHeading
@@ -484,7 +542,145 @@ export default function App() {
           </div>
         </section>
 
-        <section id="workflow" className="section reveal-on-scroll">
+<section id="video" className="section reveal-on-scroll">
+  <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+    <h2>Vivez l'expérience Flavio Taxi Moto</h2>
+    <p>Découvrez vos futurs trajets à bord de notre Honda Goldwing.</p>
+  </div>
+
+  <video
+    controls
+    playsInline
+    preload="metadata"
+    style={{
+      display: 'block',
+      width: '100%',
+      maxWidth: '420px',
+      margin: '0 auto',
+      borderRadius: '18px'
+    }}
+  >
+    <source src="/videos/flavio-taxi-moto.mp4" type="video/mp4" />
+    Votre navigateur ne prend pas en charge cette vidéo.
+  </video>
+</section>
+
+
+
+<section id="tarifs" className="section reveal-on-scroll">
+  <SectionHeading
+    eyebrow="Tarification"
+    title="Estimez le prix de votre trajet"
+    description="Indiquez votre adresse de départ et votre destination pour obtenir une estimation immédiate."
+  />
+
+  <div className="tarif-calculateur">
+    <div className="tarif-champ">
+      <label htmlFor="tarif-depart">Adresse de départ</label>
+      <input
+        id="tarif-depart"
+        type="text"
+        placeholder="Ex. : Plaisir, Yvelines"
+        value={tarifDepart}
+        onChange={(e) => {
+  setTarifDepart(e.target.value)
+  setCoordonneesDepart(null)
+  rechercherSuggestions(e.target.value, 'depart')
+}}
+      />
+    {suggestionsDepart.length > 0 && (
+  <div className="tarif-suggestions">
+    {suggestionsDepart.map((adresse, index) => (
+      <button
+        key={index}
+        type="button"
+        onClick={() => {
+          setTarifDepart(adresse.adresse)
+          setCoordonneesDepart(adresse.coordonnees)
+          setSuggestionsDepart([])
+        }}
+      >
+        {adresse.adresse}
+      </button>
+    ))}
+  </div>
+)}
+</div>
+
+    <div className="tarif-champ">
+      <label htmlFor="tarif-destination">Destination</label>
+      <input
+        id="tarif-destination"
+        type="text"
+        placeholder="Ex. : Aéroport Paris-CDG"
+        value={tarifDestination}
+        onChange={(e) => {
+  setTarifDestination(e.target.value)
+  setCoordonneesDestination(null)
+  rechercherSuggestions(e.target.value, 'destination')
+}}
+      />
+      {suggestionsDestination.length > 0 && (
+  <div className="tarif-suggestions">
+    {suggestionsDestination.map((adresse, index) => (
+      <button
+        key={index}
+        type="button"
+        onClick={() => {
+          setTarifDestination(adresse.adresse)
+          setCoordonneesDestination(adresse.coordonnees)
+          setSuggestionsDestination([])
+        }}
+      >
+        {adresse.adresse}
+      </button>
+    ))}
+  </div>
+)}
+    </div>
+
+    <button
+      type="button"
+      className="tarif-bouton"
+      onClick={calculerTarif}
+      disabled={tarifChargement}
+    >
+      {tarifChargement ? 'Calcul en cours...' : 'Estimer mon tarif'}
+    </button>
+
+    {tarifErreur && <p className="tarif-erreur">{tarifErreur}</p>}
+
+    {tarifResultat && (
+      <div className="tarif-resultat">
+        <p>Distance estimée : {tarifResultat.kilometres.toFixed(1)} km</p>
+        <h3>{tarifResultat.tarif.toFixed(2)} €</h3>
+        <p>30 € de prise en charge + 2,50 €/km</p>
+        <small>Estimation indicative, à confirmer lors de la réservation.</small>
+      </div>
+    )}
+  </div>
+</section>
+
+<section id="why-us" className="section reveal-on-scroll">
+          <SectionHeading
+            eyebrow="Pourquoi nous choisir"
+            title="Une expérience premium à la hauteur de vos exigences"
+            description="Précision, confort et élégance pour chaque déplacement, à toute heure."
+          />
+
+          <div className="card-grid card-grid--features">
+            {features.map((feature, index) => (
+              <article key={feature.title} className="info-card info-card--feature reveal-card" style={{ transitionDelay: `${index * 100}ms` }}>
+                <div className="info-card__icon" aria-hidden="true">
+                  {feature.icon}
+                </div>
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+<section id="workflow" className="section reveal-on-scroll">
           <SectionHeading
             eyebrow="Comment ça fonctionne ?"
             title="Votre réservation en 4 étapes simples"
@@ -561,7 +757,14 @@ export default function App() {
                 <p>Décrivez votre besoin et nous vous recontactons rapidement.</p>
               </div>
 
-              <form className="booking-form" aria-label="Formulaire de demande de devis">
+              <form
+  name="reservation-taxi-moto"
+  method="POST"
+  data-netlify="true"
+  className="booking-form"
+  aria-label="Formulaire de demande de réservation"
+>
+    <input type="hidden" name="form-name" value="reservation-taxi-moto" />
                 <div className="booking-form__grid">
                   <label className="field field--floating">
                     <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder=" " autoComplete="name" />
@@ -587,10 +790,20 @@ export default function App() {
                     <input type="date" name="date" value={formData.date} onChange={handleChange} />
                     <span>Date</span>
                   </label>
-                  <label className="field field--floating">
-                    <input type="time" name="time" value={formData.time} onChange={handleChange} />
-                    <span>Heure</span>
-                  </label>
+<label className="field field--floating">
+  <input
+    type="text"
+    name="time"
+    value={formData.time}
+    onChange={handleChange}
+    placeholder="HH:MM"
+    maxLength={5}
+    inputMode="numeric"
+    pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+    required
+  />
+  <span>Heure</span>
+</label>
                   <label className="field field--floating">
                     <input type="number" min="1" max="4" name="passengers" value={formData.passengers} onChange={handleChange} placeholder=" " />
                     <span>Nombre de passagers</span>
@@ -632,10 +845,15 @@ export default function App() {
                 ) : null}
 
                 <div className="booking-card__contact-info">
-                  <p>☎ 06 29 49 58 50</p>
-                  <p>✉ flaviotaximoto@gmail.com</p>
-                  <p>📍 Yvelines • Paris • Versailles • Orly • CDG</p>
-                </div>
+  <p>
+    📞 <a href="tel:+33629495850">06 29 49 58 50</a>
+  </p>
+  <p>
+    ✉️ <a href="mailto:flaviotaximoto@gmail.com">
+      flaviotaximoto@gmail.com
+    </a>
+  </p>
+</div>
               </form>
             </div>
           </div>
